@@ -6,7 +6,7 @@ Repo for W266 NLP final project. Team: Max Shen, Will Monge and Nelson Yao
 
 In order to ensure that all code is transportable we have specified the minimal **virtual environment** necessary to run thep project. These virtual environments can be managed through [conda](http://conda.pydata.org/docs/using/envs.html)(specially recommended) or virtualenv / virtualenvwrapper.  
 
-*Should you choose to not create a virtualenv and just install directly on your raw machine just install the prereqs (follow step 2 for virtualenv instructions)*  
+*Should you choose to not create a virtualenv, install directly on your raw machine by following step 2 for virtualenv instructions.*  
 
 
 ### With `conda`
