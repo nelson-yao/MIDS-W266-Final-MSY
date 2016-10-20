@@ -17,3 +17,5 @@ course materials.
 
 ### [Week 7: Part-of-Speech Tagging I](week7/)
 
+### [Week 8: Part-of-Speech Tagging II](week8/)
+
