@@ -9,7 +9,6 @@ import re
 import pandas as pd
 
 
-
 ## Variable-parsing functions
 
 META_LINES = ['FILE', 'TIME', 'EVENTS', 'ITEM']
@@ -52,12 +51,14 @@ def parse_8kfile(flatfile, output_folder='../data/parsed/8k-data/'):
 
 	# Parse documents and create dataframe
 	parsed_data = {
-		'file': map(get_file, documents),
-		'time': map(get_time, documents),
-		'events': map(get_events, documents),
-		'items': map(get_items, documents),
-		'text': map(get_text, documents)
-	 }
+		'file': list(map(get_file, documents)),
+		'time': list(map(get_time, documents)),
+		'events': list(map(get_events, documents)),
+		'items': list(map(get_items, documents)),
+		'text': list(map(get_text, documents))
+	}
+
+	# print( len(parsed_data) )
 
 	struct_data = pd.DataFrame.from_dict(parsed_data)
 
@@ -74,7 +75,8 @@ def parse_8kfolder(flatfile_folder, output_folder='../data/parsed/8k-data/'):
 
 	print( '\n\033[34mParsing {} files ...\033[0m'.format(len(files)) )
 
-	map( parse_8kfile, files )
+	for f in files:
+		parse_8kfile(f, output_folder)
 
 	print( '\033[34mDone! Located in:  \033[32m{}\033[0m'.format(output_folder) )
 
