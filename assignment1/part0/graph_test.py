@@ -50,7 +50,7 @@ class TestLayer(tf.test.TestCase):
 
 class TestNN(unittest.TestCase):
 
-    def test_train_nn_no_fclayers(self):
+    def test_train_nn(self):
         X_train, y_train, X_test, y_test = generate_data(1000, 10)
         y_model = graph.train_nn(X_train, y_train, X_test,
                 [], 50, 2000, 0.001)
