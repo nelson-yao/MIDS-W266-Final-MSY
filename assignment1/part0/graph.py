@@ -45,12 +45,15 @@ def fully_connected_layers(hidden_dims, x):
     #
     # Hint: see tf.variable_scope - you'll want to use this to make each layer 
     # unique.
+    # Hint: a fully connected layer is a nonlinearity of an affine of its input.
+    #       your answer here only be a couple of lines long (mine is 4).
 
     # START YOUR CODE
     pass
     # END YOUR CODE
 
-def train_nn(X, y, X_test, hidden_dims, batch_size, num_epochs, learning_rate):
+def train_nn(X, y, X_test, hidden_dims, batch_size, num_epochs, learning_rate,
+             verbose=False):
     # Train a neural network consisting of fully_connected_layers
     # to predict y.  Use sigmoid_cross_entropy_with_logits loss between the
     # prediction and the label.
@@ -75,6 +78,11 @@ def train_nn(X, y, X_test, hidden_dims, batch_size, num_epochs, learning_rate):
     #   (hint 2: see tf.reduce_mean)
     # - train_op: the training operation resulting from minimizing the loss
     #             with a GradientDescentOptimizer
+    #
+    # Hint:  Remember that a neural network has the form
+    #        <affine-nonlinear>* -> affine -> sigmoid -> y_hat
+    #        Double check your code works for 0..n affine-nonlinears.
+    #
     # START YOUR CODE
     pass
 
@@ -87,10 +95,11 @@ def train_nn(X, y, X_test, hidden_dims, batch_size, num_epochs, learning_rate):
     sess.run(tf.initialize_all_variables())
     print 'Initial loss:', sess.run(loss, feed_dict={x_ph: X, y_ph: y})
 
-    for var in tf.trainable_variables():
-        print 'Variable: ', var.name, var.get_shape()
-        print 'dJ/dVar: ', sess.run(
-                tf.gradients(loss, var), feed_dict={x_ph: X, y_ph: y})
+    if verbose:
+      for var in tf.trainable_variables():
+          print 'Variable: ', var.name, var.get_shape()
+          print 'dJ/dVar: ', sess.run(
+                  tf.gradients(loss, var), feed_dict={x_ph: X, y_ph: y})
 
     for epoch_num in xrange(num_epochs):
         for batch in xrange(0, X.shape[0], batch_size):
@@ -103,9 +112,10 @@ def train_nn(X, y, X_test, hidden_dims, batch_size, num_epochs, learning_rate):
             # END YOUR CODE
         if epoch_num % 300 == 0:
             print 'Step: ', global_step_value, 'Loss:', loss_value
-            for var in tf.trainable_variables():
-                print var.name, sess.run(var)
-            print ''
+            if verbose:
+              for var in tf.trainable_variables():
+                  print var.name, sess.run(var)
+              print ''
 
     # Return your predictions.
     # START YOUR CODE

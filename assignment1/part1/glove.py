@@ -18,6 +18,11 @@ def wordids_to_tensors(wordids, embedding_dim, vocab_size, seed=0):
       - a tuple (w, b, m) where w is a tensor of word embeddings and b is a vector
         of biases.  w is |W x E| and b is |W|.  m is the full |V x E| embedding matrix.
         Each of these should contain values of type tf.float32.
+
+    To get the tests to pass, initialize w with a random_uniform [-1, 1] using
+    the provided seed.
+
+    As usual the "b" vector should be initialized to 0.
     '''
     # START YOUR CODE
     pass
