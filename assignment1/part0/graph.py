@@ -106,7 +106,10 @@ def train_nn(X, y, X_test, hidden_dims, batch_size, num_epochs, learning_rate,
             X_batch = X[batch : batch + batch_size]
             y_batch = y[batch : batch + batch_size]
 
-            # Populate loss_value with the loss this iteration.
+            # Feed a batch to your network using sess.run.
+            # Populate loss_value with the current value of loss.
+            # Populate global_value with the current value of global_step.
+            # You'll also want to run your training op.
             # START YOUR CODE
             pass
             # END YOUR CODE
