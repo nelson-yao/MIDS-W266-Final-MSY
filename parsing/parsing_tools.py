@@ -1,5 +1,5 @@
 ##  DATA PARSER
-#  Parses the raw data downloaded from 
+#  Parses the raw data downloaded from
 #     Oct, 2016
 
 
@@ -7,6 +7,12 @@ import gzip
 import glob
 import re
 import pandas as pd
+
+from collections import Counter
+from nltk.corpus import stopwords
+
+# Stopwords
+STOPWORDS = set(stopwords.words('english'))
 
 
 ## Variable-parsing functions
@@ -21,7 +27,7 @@ reg_ITEMS = re.compile('ITEM:(.*)')
 
 # A parsing_function generator
 def factory_parser(compiled_regex):
-	return lambda d: map(lambda x: x.replace(',', '').strip(), re.findall(compiled_regex, d))
+    return lambda d: map(lambda x: x.replace(',', '').strip(), re.findall(compiled_regex, d))
 
 get_file = factory_parser(reg_FILE)
 get_time = factory_parser(reg_TIME)
@@ -29,79 +35,65 @@ get_events = factory_parser(reg_EVENTS)
 get_items = factory_parser(reg_ITEMS)
 
 def get_text(doc):
-	lines = [ ln for ln in doc.split('\n') if ln != ' ' ]
-	g_lines = [ ln for ln in lines if not any(map(lambda x: ln.startswith(x), META_LINES)) ]
-	return '\n'.join( g_lines )
+    lines = [ ln for ln in doc.split('\n') if ln != ' ' ]
+    g_lines = [ ln for ln in lines if not any(map(lambda x: ln.startswith(x), META_LINES)) ]
+    return '\n'.join( g_lines )
+
+# Bag of Words parser
+def process_bow(text):
+    """ Returns a Counter with the Bag of Words of the text inputted """
+    _text = text.lower().replace('TEXT:', '').replace('Table of Contents', '')
+
+    # Split into words and remove common (NLTK) stopwords
+    words = filter(lambda x: x not in STOPWORDS, _text.split())
+
+    return Counter(words)
 
 
+## Full folder parser function
 
-## Full file parser function
+def parse_files(folder, output_folder='../data/parsed/', debug=False):
+    """ Unzips all .gz files found in the specified folder """
 
-def parse_8kfile(flatfile, output_folder='../data/parsed/8k-data/'):
-	""" Parses a file and outputs it as a csv """
+    files = glob.glob( '{f}/*.gz'.format(f=folder) )
 
-	filename = flatfile.split('/')[-1].split('.')[0]  # extract the filename for output
-	
-	# Read flat file
-	with open(flatfile, 'r') as f:
-		data = f.read()
+    print( '\n\033[34mReading {} zipped files ...\033[0m'.format(len(files)) )
 
-	# Split into documents
-	documents = data.replace('<DOCUMENT>', '').split('</DOCUMENT>')
+    for gzip_file in files:
 
-	# Parse documents and create dataframe
-	parsed_data = {
-		'file': list(map(get_file, documents)),
-		'time': list(map(get_time, documents)),
-		'events': list(map(get_events, documents)),
-		'items': list(map(get_items, documents)),
-		'text': list(map(get_text, documents))
-	}
-
-	# print( len(parsed_data) )
-
-	struct_data = pd.DataFrame.from_dict(parsed_data)
-
-	# save to csv
-	struct_data.to_csv( '{f}/{nm}.csv'.format(f=output_folder, nm=filename) )
+        with gzip.open(gzip_file, 'rb') as f_in:
+            _data = f_in.read()
 
 
-## Folder parser
+        # Split into documents
+        documents = _data.replace('<DOCUMENT>', '').split('</DOCUMENT>')
 
-def parse_8kfolder(flatfile_folder, output_folder='../data/parsed/8k-data/'):
-	""" Parses the entire folder of flat files """
+        # Parse documents and create dataframe
+        parsed_data = {
+            'file': list(map(get_file, documents)),
+            'time': list(map(get_time, documents)),
+            'events': list(map(get_events, documents)),
+            'items': list(map(get_items, documents)),
+            'text': list(map(get_text, documents))
+        }
 
-	files = glob.glob( '{f}/*'.format(f=flatfile_folder) )
-
-	print( '\n\033[34mParsing {} files ...\033[0m'.format(len(files)) )
-
-	for f in files:
-		parse_8kfile(f, output_folder)
-
-	print( '\033[34mDone! Located in:  \033[32m{}\033[0m'.format(output_folder) )
-
+        data = pd.DataFrame.from_dict(parsed_data).iloc[:-1, :]
 
 
-## Unzip a gzip file
+        # Generate final (parsed) features
+        data['bow'] = data.text.apply( lambda x: str(process_bow(x)) )
+        data['date'] = data.time.apply( lambda x: pd.datetime(year=int(x[0][:4]),
+                                                              month=int(x[0][4:6]),
+                                                              day=int(x[0][6:8])) )
+        data['orig_file'] = data.file.apply( lambda x: x[0] )
 
-def unzip_files(folder, output_folder='data/unzipped/'):
-	""" Unzips all .gz files found in the specified folder """
+        # replace the '.gz' with '.csv'
+        output_file = gzip_file.replace('.gz', '.csv').split('/')[-1]
+        data[['date', 'bow', 'items', 'text', 'orig_file' ]].to_csv(output_folder+output_file, index=False)
 
-	files = glob.glob( '{f}/*.gz'.format(f=folder) )
+        if debug:
+	        break
 
-	print( '\n\033[34mUnzipping {} files ...\033[0m'.format(len(files)) )
-
-	for gzip_file in files:
-
-		with gzip.open(gzip_file, 'rb') as f_in:
-			_data = f_in.read()
-
-		# replace the '.gz' with '.txt'
-		output_file = gzip_file.replace('.gz', '.txt').split('/')[-1]
-
-		with open('{f}{out}'.format(f=output_folder, out=output_file), 'wb') as f_out:
-			f_out.write(_data)
-
-	print( '\033[34mDone! Located in:  \033[32m{}\033[0m'.format(output_folder) )
+    print( '\033[34mDone! Located in:  \033[32m{}\033[0m'.format(output_folder) )
 
 
