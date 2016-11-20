@@ -52,7 +52,7 @@ def process_bow(text):
 
 ## Full folder parser function
 
-def parse_files(folder, output_folder='../data/parsed/', debug=False):
+def parse_files(folder, output_folder='../data/parsed/', debug=Falsei):
     """ Unzips all .gz files found in the specified folder """
 
     files = glob.glob( '{f}/*.gz'.format(f=folder) )
