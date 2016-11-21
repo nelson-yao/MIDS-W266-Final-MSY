@@ -52,7 +52,7 @@ def process_bow(text):
 
 ## Full folder parser function
 
-def parse_files(folder, output_folder='../data/parsed/', debug=Falsei):
+def parse_files(folder, output_folder='../data/parsed/', debug=False):
     """ Unzips all .gz files found in the specified folder """
 
     files = glob.glob( '{f}/*.gz'.format(f=folder) )
@@ -85,11 +85,19 @@ def parse_files(folder, output_folder='../data/parsed/', debug=Falsei):
         data['date'] = data.time.apply( lambda x: pd.datetime(year=int(x[0][:4]),
                                                               month=int(x[0][4:6]),
                                                               day=int(x[0][6:8])) )
+        data['timestamp'] = data.time.apply( lambda x: pd.datetime(year=int(x[0][:4]),
+                                                              month=int(x[0][4:6]),
+                                                              day=int(x[0][6:8]),
+                                                              hour=int(x[0][8:10]),
+                                                              minute=int(x[0][10:12]),
+                                                              second=int(x[0][12:14])), )
+
         data['orig_file'] = data.file.apply( lambda x: x[0] )
+        data['ticker'] = gzip_file.replace('.gz', '').split('/')[-1]
 
         # replace the '.gz' with '.csv'
         output_file = gzip_file.replace('.gz', '.csv').split('/')[-1]
-        data[['date', 'bow', 'items', 'text', 'orig_file' ]].to_csv(output_folder+output_file, index=False)
+        data[['date', 'timestamp', 'ticker', 'bow', 'items', 'text', 'orig_file' ]].to_csv(output_folder+output_file, index=False)
 
         if debug:
 	        break
