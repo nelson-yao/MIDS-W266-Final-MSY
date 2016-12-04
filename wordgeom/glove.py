@@ -28,6 +28,7 @@ class GloVe(object):
 
     def __init__(self, file_name):
         self.vocab = self.load_model(self.PATH_TO_CORPORA + file_name)
+        self.n_dim = self.__getitem__( 'a' ).shape[0]
 
 
     def load_model(self, file_name):
@@ -52,18 +53,15 @@ class GloVe(object):
 
 
     # NOTE: research other aggregation methods (other than mean)
-    def __call__(self, message_text):
-        """Geometric representation of a document"""
-        representation = 0.
-        words = message_text.lower().split()
-        if words:
-            for w in words:
-                representation += self.__getitem__( w.strip() )
+    def __call__(self, message_text, doc_length):
+        """Geometric representation of a document (document will be censored of padded to match length)"""
 
-            representation /= len(words)
-        # If no words were specified
+        words = message_text.lower().split()
+
+        if len(words) > doc_length:
+            representation = np.stack( [ self.__getitem__(w) for w in words[:doc_length]  ] )
         else:
-            representation = self.vocab['<unk>']
+            representation = np.stack( [ self.__getitem__(w) for w in words ] + [np.zeros(self.n_dim)]*(doc_length-len(words)) )
 
         return representation
 
