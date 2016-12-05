@@ -4,6 +4,7 @@
 
 
 import numpy as np
+from gensim.parsing.preprocessing import STOPWORDS
 
 from os.path import abspath
 from glob import glob
@@ -51,17 +52,38 @@ class GloVe(object):
         finally:
             return representation
 
+    def sentence_representation(self, sentence):
+        """Returns the 'mean' representation of all the uncommon words in a sentence """
+        representation = 0.
 
-    # NOTE: research other aggregation methods (other than mean)
-    def __call__(self, message_text, doc_length):
-        """Geometric representation of a document (document will be censored of padded to match length)"""
+        # Get list of `uncommon` words
+        words = [ w for w in sentence.lower().split() if w not in STOPWORDS ]
 
-        words = message_text.lower().split()
+        if words:
+            for w in words:
+                representation += self.__getitem__( w.strip() )
 
-        if len(words) > doc_length:
-            representation = np.stack( [ self.__getitem__(w) for w in words[:doc_length]  ] )
+            representation /= len(words)
+        # If no words were specified
         else:
-            representation = np.stack( [ self.__getitem__(w) for w in words ] + [np.zeros(self.n_dim)]*(doc_length-len(words)) )
+            representation = self.vocab['<unk>']
 
         return representation
+
+
+    # NOTE: research other aggregation methods (other than mean)
+    def __call__(self, text_list, doc_length):
+        """Geometric representation of a document (document will be censored of padded to match length)"""
+
+        pad_length = doc_length - len(text_list)
+
+        # obtain each sentences representation
+        sent_reps = np.stack( [ self.sentence_representation(s) for s in text_list[:doc_length] ] )
+
+        # add padding if necessary
+        if pad_length > 0:
+            sent_reps.extend([np.zeros(self.n_dim)] * pad_length)
+
+        # return stacked representations
+        return np.stack( sent_reps )
 
