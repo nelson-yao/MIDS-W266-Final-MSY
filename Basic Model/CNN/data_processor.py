@@ -1,13 +1,18 @@
 import nltk.data
+from nltk import word_tokenize
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
 def load_features(input_data):
 
     return_data = []
     for i in range(input_data.shape[0]):
-        return_data.append(tokenizer.tokenize(input_data.iloc[i]))
+        tokens = word_tokenize(input_data.iloc[i])
+        out = ' '.join(word for word in tokens[:200])
+        
+        return_data.append(out)
+        #return_data.append(tokenizer.tokenize(input_data.iloc[i]))
     
-    return (return_data)
+    return (return_data) #return_data)
 
 def batch_iter(data, batch_size, num_epochs, shuffle=True):
     """
