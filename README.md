@@ -55,38 +55,41 @@ The authors provide a repository with the data of all S&P500 companies (a total 
 
 #### Dependent Variable Construction
 
-From the dataset, we reconstruct stock returns immediately following the release of the 8-K then normalized by subtracting it from S&P 500 performance during the same timeframe.  If the difference is larger than 1%, we labeled it as ‘UP’.  If the difference is smaller than -1%, we labeled it as ‘DOWN’.  Anything else will be labeled as ‘STAY’.
+From the dataset, we reconstruct stock returns immediately following the release of the 8-K then normalized by subtracting it from S&P 500 performance during the same timeframe.  If the difference is larger than 1%, we labeled it as ‘UP’. If the difference is smaller than -1%, we labeled it as ‘DOWN’.  Anything else will be labeled as ‘STAY’.
 
 For example, suppose Apple’s release it’s 8-K on 04/30/2005 after the market close.  The label is classified as:
 
-$$ StockPerformance = (OpenPrice_{t+1} - ClosingPrice_t) / ClosingPrice_t $$
-
-$$ Market Performance = (OpenPrice_{t+1} - ClosingPrice_t) / ClosingPrice_t $$
-
-$$
-\left\{
-\begin{array}{ll}
-     UP & if   \sum_{t}^{t+12}d_{i,t}>0\\
-     STAY & otherwise\\
-     DOWN & otherwise\\
-\end{array}
-\right.
-$$
-
-Label Stock Performance - Market Performance >1%: ‘UP’, <-1%: ‘DOWN’, else ‘STAY’.
-Where t+1 = next trading day.
+![Label definition](data/img/label_definition.png)
 
 If the document release is during market trading hours, then the price difference will be today’s open and today’s close.  If the release is before market trading hours, price difference will be previous close and today’s open.
-Ideally we would love to have hourly stock performance right after release of 8-K, but that data is not available so we use close/open price instead.  The purpose of subtracting stock performance from the market performance is to reduce the market’s effects, retaining parts of price moments related to information in the 8-K.
+
+Ideally we would love to have hourly stock performance right after release of 8-K, but that data is not available so we use close/open price instead.
+
+The purpose of subtracting stock performance from the market performance is to reduce the market’s effects, retaining parts of price moments related to information in the 8-K.
+
 By creating labels this way, stock performance is simplified into a classification problem rather than a regression problem.
 
 #### Extraction
 
+The raw data consisted of a folder of 1500 zipped files, each corresponding to one of the S&P500 companies. Each zipped file was a flat text file with all the 8Ks released by that company in a slightly structured manner:
+* XML-like tags for enclosing the documents (`<DOCUMENT>...<END OF DOCUMENT>`)
+* Meta-data tags at the head of the document: `RELEASE TIME`, `ITEMS` and `TEXT`
 
+With python we programmatically unzipped the files, split into documents and extracted the following features:
+* Company
+* Timestamp of release
+* Human-readable release date
+* Items
+* Raw text
 
 
 #### Parsing
 
+From the raw text of the document we had to perform some cleaning tasks, so as to eliminate a few (~10) empty documents (though to either empty text or corrupt tags).
+
+How many documents total?
+
+EPS parsing from HTML
 
 
 ### Feature Engineering
@@ -94,7 +97,13 @@ By creating labels this way, stock performance is simplified into a classificati
 
 ### Models
 
-#### Baseline Model
+__Model Assessment:__
+By converting stock performance into three buckets, predicting stock return became a classification problem. To benchmark against the original Stanford paper, the key metric to assess performance is accuracy of class predictions.
+
+As evaluation metrics we used the accuracy (as % of correctly predicted) as well as the [softmax cross-entropy](https://www.tensorflow.org/api_docs/python/nn/classification#softmax_cross_entropy_with_logits) between the logit predictions and the labels.
+
+
+#### Random Forest (_Baseline Model_)
 
 
 ####  CNN
