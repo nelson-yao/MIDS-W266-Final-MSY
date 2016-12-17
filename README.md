@@ -2,36 +2,58 @@
 # MIDS-W266-Final-MSY
 Repo for W266 NLP final project. Team: Max Shen, Will Monge and Nelson Yao
 
-
-### Environment setup
-
-In order to ensure that all code is transportable we have specified the minimal **virtual environment** necessary to run thep project. These virtual environments can be managed through [conda](http://conda.pydata.org/docs/using/envs.html)(specially recommended) or virtualenv / virtualenvwrapper.  
-
-*Should you choose to not create a virtualenv, install directly on your raw machine by following step 2 for virtualenv instructions.*  
+### Summary
 
 
-### With `conda`
 
-```bash
-$ conda env create -f config/nlp-environment.yml
-$ source activate nlp
-```
+__NOTE: Environment setup__
+_For environment setup refer to the [config folder](https://github.com/seriousNel/MIDS-W266-Final-MSY/tree/master/config)_
 
-That's it!  
-*For more info on using virtual environments with conda see [here](http://conda.pydata.org/docs/using/envs.html)*
 
-### With `virtualenv`  
+### Index
 
-* Create a virtual env (from within the folder) and activate it:  
+* Motivation & Background
+* Data, Extraction & Parsing
+    * Data Source
+    * Extraction
+    * Parsing
+* Feature Engineering
+    * One Hot Encoding of 8K items
+    * Word Embeddings
+* Models
+    * Random Forest (_baseline_)
+    * CNN
+    * Feed-forward
+* Results & Conclusion
 
-```bash
-$ virtualenv nlp
-$ source nlp/bin/activate
-```  
 
-* Install pre-reqs:
 
-```bash
-$ pip install -r config/nlp-requirements.txt
-```
->>>>>>> 3e2a4e9ff662cf31338e13a038aa2564a0569aaa
+
+### Motivation & Background
+
+
+
+
+### Data, Extraction & Parsing
+
+#### Data Source
+
+#### Extraction
+
+#### Parsing
+
+
+
+### Feature Engineering
+
+
+### Models
+
+#### Baseline Model
+
+
+####  CNN
+
+
+#### Feed-Forward
+
