@@ -1,3 +1,6 @@
+.DS_Store
+data/.DS_Store
+
 ###Python###
 
 # Byte-compiled / optimized / DLL files
